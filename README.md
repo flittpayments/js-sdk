@@ -1,4 +1,5 @@
-![Flitt](https://flitt.com/wp-content/uploads/2024/09/Group.svg)
+![Flitt](https://flitt.com/wp-content/uploads/2025/08/light-logo.svg)
+
 # Flitt JavaScript SDK
 
 [![NPM Version](https://img.shields.io/npm/v/@flittpayments/js-sdk.svg)](https://www.npmjs.com/package/@flittpayments/js-sdk)
@@ -21,19 +22,20 @@ or add dependency manually:
 ```json
 {
   "dependency": {
-    "@flittpayments/js-sdk":"^2.0"
+    "@flittpayments/js-sdk": "^2.0"
   }
 }
 ```
+
 ### Manual installation
 
 If you do not use NPM, you can download the
 [latest release](https://github.com/flittpayments/flitt-js-sdk/releases).
 Or clone from GitHub the latest developer version
+
 ```cmd
 git clone git@github.com:flittpayments/js-sdk.git
 ```
-
 
 ## Quick start
 
@@ -47,20 +49,22 @@ git clone git@github.com:flittpayments/js-sdk.git
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   </head>
   <body>
     <script src="https://cdn.jsdelivr.net/npm/@flittpayments/js-sdk"></script>
     <script>
-    $checkout('Api').scope(function(){
-        this.request('api.checkout.form','request', { Parameters } ).done(function(model){
-            model.sendResponse();
-            console.log(model.attr('order'));
-        }).fail(function(model){
-            console.log(model.attr('error'));
-        });
-    });
+      $checkout('Api').scope(function () {
+        this.request('api.checkout.form', 'request', { Parameters })
+          .done(function (model) {
+            model.sendResponse()
+            console.log(model.attr('order'))
+          })
+          .fail(function (model) {
+            console.log(model.attr('error'))
+          })
+      })
     </script>
   </body>
 </html>
@@ -72,26 +76,29 @@ git clone git@github.com:flittpayments/js-sdk.git
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   </head>
   <body>
     <script src="https://cdn.jsdelivr.net/npm/@flittpayments/js-sdk"></script>
     <div class="payment-button-container"></div>
     <script>
-    $checkout.get('PaymentButton', {
-      element: '.payment-button-container',
-      style: {
-        type: 'long', // short|long
-        color: 'black', // black|white
-        height: 38 // button height
-      },
-      data: { Parameters }
-    }).on('success', function(model) {
-      console.log('success', model);
-    }).on('error', function(model) {
-      console.log('error', model);
-    });
+      $checkout
+        .get('PaymentButton', {
+          element: '.payment-button-container',
+          style: {
+            type: 'long', // short|long
+            color: 'black', // black|white
+            height: 38, // button height
+          },
+          data: { Parameters },
+        })
+        .on('success', function (model) {
+          console.log('success', model)
+        })
+        .on('error', function (model) {
+          console.log('error', model)
+        })
     </script>
   </body>
 </html>
@@ -103,15 +110,15 @@ git clone git@github.com:flittpayments/js-sdk.git
 
 ```json
 {
-  "payment_system":"Supported payment systems: card, p24",
-  "token":"host-to-host generated token",
-  "card_number":"16/19-digits number",
-  "expiry_date":"Supported formats: MM/YY, MM/YYYY, MMYY, MMYYYY",
-  "cvv2":"3-digits number"
+  "payment_system": "Supported payment systems: card, p24",
+  "token": "host-to-host generated token",
+  "card_number": "16/19-digits number",
+  "expiry_date": "Supported formats: MM/YY, MM/YYYY, MMYY, MMYYYY",
+  "cvv2": "3-digits number"
 }
 ```
 
-Where token is value, returned in payment gateway response from API endpoint /api/checkout/token 
+Where token is value, returned in payment gateway response from API endpoint /api/checkout/token
 (more details in API documentation: https://docs.flitt.com/api/create-order/ )
 
 request example:
@@ -137,10 +144,10 @@ response example:
 
 ```json
 {
-    "response": {
-        "response_status": "success",
-        "token": "7ddb3fbb03d60787b3972ef8d6fad0f97f7d2f86"
-    }
+  "response": {
+    "response_status": "success",
+    "token": "7ddb3fbb03d60787b3972ef8d6fad0f97f7d2f86"
+  }
 }
 ```
 
@@ -148,13 +155,13 @@ response example:
 
 ```json
 {
-  "payment_system":"Supported payment systems: card, p24",
-  "merchant_id":"1396424",
-  "currency":"USD",
-  "amount":"100.20",
-  "card_number":"16/19-digits number",
-  "expiry_date":"Supported formats: MM/YY, MM/YYYY, MMYY, MMYYYY",
-  "cvv2":"3-digits number"
+  "payment_system": "Supported payment systems: card, p24",
+  "merchant_id": "1396424",
+  "currency": "USD",
+  "amount": "100.20",
+  "card_number": "16/19-digits number",
+  "expiry_date": "Supported formats: MM/YY, MM/YYYY, MMYY, MMYYYY",
+  "cvv2": "3-digits number"
 }
 ```
 
@@ -162,10 +169,11 @@ optional merchant parameters:
 
 ```json
 {
-  "email":"customer email address",
-  "phone":"customer phone number"
+  "email": "customer email address",
+  "phone": "customer phone number"
 }
 ```
+
 ## Usage example
 
 https://jsfiddle.net/flitt/on8ydsgq/
