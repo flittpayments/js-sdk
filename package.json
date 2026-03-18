@@ -22,7 +22,6 @@
     }
   },
   "scripts": {
-    "install": "rollup -c",
     "build": "rollup -c",
     "watch": "rollup -c -w & vitest --coverage",
     "test": "vitest run",
@@ -31,7 +30,7 @@
     "version": "npm run build",
     "postversion": "git push && git push --tags"
   },
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
     "@jest/globals": "^30.3.0",
