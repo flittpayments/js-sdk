@@ -353,8 +353,6 @@ export const getAppleSessionConfig = (config) => {
   if (options.requestPayerName) requiredShippingContactFields.push('name')
   if (options.requestPayerEmail) requiredShippingContactFields.push('email')
   if (options.requestPayerPhone) requiredShippingContactFields.push('phone')
-  //method.data.recurringPaymentRequest = recurringPaymentRequest
-  //method.data.deferredPaymentRequest = deferredPaymentRequest
   return {
     version: method.data.version,
     countryCode: method.data.countryCode,
@@ -377,32 +375,19 @@ export const getAppleSessionConfig = (config) => {
   }
 }
 
-// export const deferredPaymentRequest = {
-//   paymentDescription: 'Бронювання готельного номеру',
-//   deferredBilling: {
-//     label: 'Бронювання',
-//     amount: '50.00',
-//     type: 'final',
-//     paymentTiming: 'deferred',
-//     deferredPaymentDate: new Date('2026-01-05'),
-//   },
-//   managementURL: 'https://flitt.ksv.app/manage-booking.html',
-// }
-
-// export const recurringPaymentRequest = {
-//   paymentDescription: 'Місячна підписка',
-//   regularBilling: {
-//     label: 'Підписка на місяць',
-//     amount: '20.00',
-//     type: 'final',
-//     paymentTiming: 'recurring',
-//     recurringPaymentStartDate: new Date('2026-01-01T00:00:00'),
-//     recurringPaymentIntervalUnit: 'month',
-//     recurringPaymentIntervalCount: 6,
-//     recurringPaymentEndDate: new Date('2028-01-01T00:00:00'),
-//   },
-//   managementURL: 'https://flitt.ksv.app/manage-subscription.html',
-// }
+export const buildUrl = (origin, path = '', params = {}) => {
+  const query = Object.keys(params)
+    .filter(function (key) {
+      return params[key] !== undefined && params[key] !== null
+    })
+    .map(function (key) {
+      return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+    })
+    .join('&')
+  const url = [origin, path].join('')
+  const separator = !!~url.indexOf('?') ? '&' : '?'
+  return query ? `${url}${separator}${query}` : url
+}
 
 export const getFunction = (path) => {
   const props = path.split('.')

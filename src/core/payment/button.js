@@ -7,6 +7,7 @@ import { ApiOrigin, ApiEndpoint } from '../config.js'
 
 export const PaymentButton = Module.extend({
   defaults: {
+    version: 'default',
     origin: ApiOrigin,
     endpoint: ApiEndpoint,
     methods: ['apple', 'google'],
@@ -32,6 +33,7 @@ export const PaymentButton = Module.extend({
     this.supported = false
     this.params = {
       element: params.element,
+      version: params.version || this.defaults.version,
       methods: params.methods || this.defaults.methods,
       origin: params.origin || this.defaults.origin,
       endpoint: this.utils.extend({}, this.defaults.endpoint, params.endpoint),
@@ -56,6 +58,7 @@ export const PaymentButton = Module.extend({
       this.api = api
     } else {
       this.api = new Api({
+        version: this.params.version,
         origin: this.params.origin,
         endpoint: this.params.endpoint,
       })

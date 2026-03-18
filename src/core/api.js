@@ -4,9 +4,11 @@ import { Connector } from './connector.js'
 import { Modal } from './modal.js'
 import { Response } from './response.js'
 import { ApiFrameCss, ApiOrigin, ApiEndpoint } from './config.js'
+import { buildUrl } from './utils.js'
 
 export const Api = Module.extend({
   defaults: {
+    version: 'default',
     origin: ApiOrigin,
     endpoint: ApiEndpoint,
     container: 'body',
@@ -20,7 +22,10 @@ export const Api = Module.extend({
     this.initParams(params)
   },
   url(type, url) {
-    return [this.params.origin, this.params.endpoint[type] || '/', url || ''].join('')
+    return buildUrl(this.params.origin, this.params.endpoint[type], {
+      version: this.params.version,
+      origin: location.origin,
+    })
   },
   extendParams(params) {
     this.utils.extend(this.params, params)
