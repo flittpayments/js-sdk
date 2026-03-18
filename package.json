@@ -22,6 +22,7 @@
     }
   },
   "scripts": {
+    "install": "rollup -c",
     "build": "rollup -c",
     "watch": "rollup -c -w & vitest --coverage",
     "test": "vitest run",
