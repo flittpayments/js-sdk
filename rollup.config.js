@@ -47,7 +47,7 @@ export default [
         name: '$checkout',
       },
       {
-        file: 'public/checkout.js',
+        file: 'public/dist/checkout.js',
         format: 'umd',
         sourcemap: true,
         name: '$checkout',

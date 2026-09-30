@@ -119,6 +119,7 @@ export const ButtonFrameCss = {
   overflow: 'hidden !important',
   height: '100% !important',
   outline: 'none !important',
+  'color-scheme': 'light',
   'z-index': '1 !important',
 }
 
