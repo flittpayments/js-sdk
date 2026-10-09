@@ -173,6 +173,18 @@ export const PaymentElement = Module.extend({
   transitionValue(value) {
     return value
   },
+  getTimeoutValue() {
+    return toArray(arguments).map(transitionDelay).sort().pop()
+  },
+  getState(state, transition) {
+    return this.state.type === (state ? 'show' : 'hide') && this.state.transition === transition
+  },
+  triggerState() {
+    this.request.trigger(this.state.type, {
+      transition: this.state.transition,
+      method: this.params.method,
+    })
+  },
   show() {
     if (this.notMounted()) return
     this.timeout('showCallback', 25)
@@ -182,9 +194,6 @@ export const PaymentElement = Module.extend({
     if (this.notMounted()) return
     this.timeout('hideCallback', 25)
     return this
-  },
-  getState(state, complete) {
-    return this.state.type === (state ? 'show' : 'hide') && this.state.transition !== complete
   },
   showCallback() {
     this.addCss(this.element, {
@@ -212,19 +221,16 @@ export const PaymentElement = Module.extend({
     })
     this.afterCallback('hide')
   },
-  getTimeoutValue() {
-    return toArray(arguments).map(transitionDelay).sort().pop()
-  },
   afterCallback(state) {
     if (this.state.type === state) return
     if (this.state.transition) return
     this.state.transition = true
     this.state.type = state
-    this.request.trigger(this.state.type, { complete: false, method: this.params.method })
+    this.triggerState()
     this.timeout('afterTransition', this.getTimeoutValue(this.iframe, this.element))
   },
   afterTransition() {
     this.state.transition = false
-    this.request.trigger(this.state.type, { complete: true, method: this.params.method })
+    this.triggerState()
   },
 })

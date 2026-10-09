@@ -131,21 +131,21 @@ export const PaymentButton = Module.extend({
   onError(_cx, data) {
     this.trigger('error', data)
   },
-  toggleEventType(state, complete) {
-    return state ? (complete ? 'shown' : 'show') : complete ? 'hidden' : 'hide'
+  toggleEventType(state, transition) {
+    return state ? (transition ? 'show' : 'shown') : transition ? 'hide' : 'hidden'
   },
   toggleEventNamespace(state, data) {
     const name = []
-    name.push(this.toggleEventType(state, data.complete))
+    name.push(this.toggleEventType(state, data.transition))
     name.push(data.method)
     return name.join(':')
   },
   triggerEventComplete(state, data) {
-    const complete = data.complete
-    const name = this.toggleEventType(state, complete)
+    const transition = data.transition
+    const name = this.toggleEventType(state, transition)
     const check = this.buttons
       .filter((i) => i.isMounted())
-      .every((i) => i.getState(state, complete))
+      .every((i) => i.getState(state, transition))
     if (check) this.trigger(name, {})
   },
   onShow(_cx, data) {
