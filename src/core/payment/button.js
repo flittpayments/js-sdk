@@ -84,7 +84,6 @@ export const PaymentButton = Module.extend({
     const origin = this.params.origin
     const appendTo = this.params.element
     const endpoint = this.params.endpoint.element
-    const transition = this.params.transition
     const request = this.request
     this.buttons = []
     this.container = this.utils.querySelector(this.params.element)
@@ -98,7 +97,6 @@ export const PaymentButton = Module.extend({
         origin: origin,
         endpoint: endpoint,
         method: method,
-        transition: transition,
         appendTo: appendTo,
         color: style.color,
         mode: style.mode,
