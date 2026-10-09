@@ -143,7 +143,9 @@ export const PaymentButton = Module.extend({
   triggerEventComplete(state, data) {
     const complete = data.complete
     const name = this.toggleEventType(state, complete)
-    const check = this.buttons.every((item) => item.getState(state, complete))
+    const check = this.buttons
+      .filter((i) => i.isMounted())
+      .every((i) => i.getState(state, complete))
     if (check) this.trigger(name, {})
   },
   onShow(_cx, data) {

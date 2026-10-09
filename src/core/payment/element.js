@@ -153,6 +153,9 @@ export const PaymentElement = Module.extend({
   notMounted() {
     return this.state.mounted === false
   },
+  isMounted() {
+    return this.state.mounted === true
+  },
   unmount() {
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element)
@@ -181,7 +184,6 @@ export const PaymentElement = Module.extend({
     return this
   },
   getState(state, complete) {
-    if (this.notMounted()) return false
     return this.state.type === (state ? 'show' : 'hide') && this.state.transition !== complete
   },
   showCallback() {
