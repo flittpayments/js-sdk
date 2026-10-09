@@ -69,6 +69,9 @@ export const PaymentRequestApi = Module.extend({
   setMerchant(merchant) {
     this.merchant = merchant
   },
+  getProviderNames() {
+    return this.supported.provider.filter((name) => !!~this.payload.allowed.indexOf(name))
+  },
   setBeforeCallback(beforeCallback) {
     if (isFunction(beforeCallback)) {
       this.params.before = beforeCallback
@@ -131,6 +134,7 @@ export const PaymentRequestApi = Module.extend({
       }),
       this.proxy(function (_cx, model) {
         this.setPending(false)
+        this.setPayload(model.serialize())
         this.trigger('error', model.serialize())
         this.defer.reject(model)
       })

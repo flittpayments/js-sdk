@@ -88,7 +88,6 @@ export const PaymentButton = Module.extend({
     const request = this.request
     this.buttons = []
     this.container = this.utils.querySelector(this.params.element)
-    this.container.innerHTML = ''
     this.addCss(this.container, {
       display: 'flex',
       gap: '1rem',
@@ -143,23 +142,19 @@ export const PaymentButton = Module.extend({
     name.push(data.method)
     return name.join(':')
   },
-  triggerEventType(state, data) {
-    const name = this.toggleEventType(state, data.complete)
-    this.triggerEventMap = this.triggerEventMap || {}
-    this.triggerEventMap[name] = this.triggerEventMap[name] || toArray(this.params.methods)
-    this.triggerEventMap[name].splice(this.triggerEventMap[name].indexOf(data.method), 1)
-    if (this.triggerEventMap[name].length === 0) {
-      this.triggerEventMap[name] = null
-      this.trigger(name, {})
-    }
+  triggerEventComplete(state, data) {
+    const complete = data.complete
+    const name = this.toggleEventType(state, complete)
+    const check = this.buttons.every((item) => item.getState(state, complete))
+    if (check) this.trigger(name, {})
   },
   onShow(_cx, data) {
     this.trigger(this.toggleEventNamespace(true, data), {})
-    this.triggerEventType(true, data)
+    this.triggerEventComplete(true, data)
   },
   onHide(_cx, data) {
     this.trigger(this.toggleEventNamespace(false, data), {})
-    this.triggerEventType(false, data)
+    this.triggerEventComplete(false, data)
   },
   onPending(_cx, state) {
     this.trigger('pending', state)

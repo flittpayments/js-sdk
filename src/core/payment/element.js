@@ -28,9 +28,12 @@ export const PaymentElement = Module.extend({
   },
   init(params) {
     this.state = {
-      isSupported: false,
-      isAllowed: false,
-      isMounted: false,
+      type: 'hide',
+      transition: false,
+      pending: false,
+      mounted: false,
+      supported: false,
+      allowed: false,
     }
     this.params = {}
     this.utils.extend(this.params, this.defaults)
@@ -89,11 +92,11 @@ export const PaymentElement = Module.extend({
   },
   onEvent(cx, ev) {
     ev.preventDefault()
-    if (this.pending) return false
+    if (this.state.pending) return false
     this.send('event', { type: ev.type })
   },
   onClick() {
-    if (this.pending) return false
+    if (this.state.pending) return false
     this.request.before().done(this.proxy('onClickDone')).fail(this.proxy('onClickFail'))
   },
   onClickDone() {
@@ -101,19 +104,19 @@ export const PaymentElement = Module.extend({
   },
   onClickFail() {},
   onSupported(cx, supported) {
-    this.state.isSupported = supported.provider.includes(this.params.method)
+    this.state.supported = supported.provider.includes(this.params.method)
     this.render()
   },
   onPayload(cx, payload) {
-    this.state.isAllowed = payload.allowed.includes(this.params.method)
+    this.state.allowed = payload.allowed.includes(this.params.method)
     this.render()
   },
   onPending(cx, state) {
-    this.pending = state
+    this.state.pending = state
     this.addCss(this.element, {
       transition: 'height 0.2s ease-out, opacity 0.4s ease-out',
-      pointerEvents: this.pending ? 'none' : '',
-      opacity: this.pending ? '0.5' : '1',
+      pointerEvents: this.state.pending ? 'none' : '',
+      opacity: this.state.pending ? '0.5' : '1',
     })
   },
   initEvents() {
@@ -126,10 +129,10 @@ export const PaymentElement = Module.extend({
   setPaymentRequest(request) {
     if (!(request instanceof PaymentRequestApi))
       throw Error('request is not instance of PaymentRequestApi')
-    this.request = request
     const onSupported = this.proxy('onSupported')
     const onPayload = this.proxy('onPayload')
     const onPending = this.proxy('onPending')
+    this.request = request
     this.request.off('supported', onSupported).on('supported', onSupported)
     this.request.off('payload', onPayload).on('payload', onPayload)
     this.request.off('pending', onPending).on('pending', onPending)
@@ -142,23 +145,25 @@ export const PaymentElement = Module.extend({
     return this
   },
   render() {
-    if (this.state.isSupported === false) return this.hide()
-    if (this.state.isAllowed === false) return this.hide()
+    if (this.state.supported === false) return this.hide()
+    if (this.state.allowed === false) return this.hide()
     this.mount()
     this.show()
   },
   notMounted() {
-    return document.body.contains(this.element) === false
+    return this.state.mounted === false
   },
   unmount() {
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element)
+      this.state.mounted = false
     }
     return this
   },
   mount() {
-    if (this.notMounted()) {
+    if (!document.body.contains(this.element)) {
       this.appendTo(this.params.appendTo)
+      this.state.mounted = true
     }
     return this
   },
@@ -174,6 +179,10 @@ export const PaymentElement = Module.extend({
     if (this.notMounted()) return
     this.timeout('hideCallback', 25)
     return this
+  },
+  getState(state, complete) {
+    if (this.notMounted()) return false
+    return this.state.type === (state ? 'show' : 'hide') && this.state.transition !== complete
   },
   showCallback() {
     this.addCss(this.element, {
@@ -205,15 +214,15 @@ export const PaymentElement = Module.extend({
     return toArray(arguments).map(transitionDelay).sort().pop()
   },
   afterCallback(state) {
-    if (this.currentState === state) return
-    if (this.transitionPending) return
-    this.transitionPending = true
-    this.currentState = state
-    this.request.trigger(this.currentState, { complete: false, method: this.params.method })
+    if (this.state.type === state) return
+    if (this.state.transition) return
+    this.state.transition = true
+    this.state.type = state
+    this.request.trigger(this.state.type, { complete: false, method: this.params.method })
     this.timeout('afterTransition', this.getTimeoutValue(this.iframe, this.element))
   },
   afterTransition() {
-    this.transitionPending = false
-    this.request.trigger(this.currentState, { complete: true, method: this.params.method })
+    this.state.transition = false
+    this.request.trigger(this.state.type, { complete: true, method: this.params.method })
   },
 })
