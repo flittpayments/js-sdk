@@ -83,21 +83,65 @@ git clone git@github.com:flittpayments/js-sdk.git
     <script src="https://cdn.jsdelivr.net/npm/@flittpayments/js-sdk"></script>
     <div class="payment-button-container"></div>
     <script>
-      $checkout
+      const paymentButton = $checkout
         .get('PaymentButton', {
+          // Target DOM selector where the button will be rendered
           element: '.payment-button-container',
+          // Visual appearance customization
           style: {
-            type: 'long', // short|long
-            color: 'black', // black|white
-            height: 38, // button height
+            type: 'long', // Options: 'short' | 'long'
+            color: 'black', // Options: 'white-outline' | 'white' | 'black'
+            mode: 'donate', // Options: 'default' | 'plain' | 'donate' | 'checkout' | 'order' | 'pay' | 'buy' | 'subscribe' | 'book'
+            height: 38, // Button height in pixels
           },
+          // Payload or metadata required for the transaction
           data: { Parameters },
         })
-        .on('success', function (model) {
+        .on('success', (model) => {
           console.log('success', model)
         })
-        .on('error', function (model) {
+        .on('error', (model) => {
           console.log('error', model)
+        })
+      // Visibility event handlers
+      paymentButton
+        .on('show', () => {
+          // Fires immediately when the showing process starts
+        })
+        .on('shown', () => {
+          // Fires after the show transition/animation ends
+        })
+        .on('hide', () => {
+          // Fires immediately when the hiding process starts
+        })
+        .on('hidden', () => {
+          // Fires after the hide transition/animation ends
+        })
+        // Apple Pay Specific Events
+        .on('show:apple', () => {
+          // Fires immediately when Apple Pay starts showing
+        })
+        .on('shown:apple', () => {
+          // Fires after Apple Pay show transition ends
+        })
+        .on('hide:apple', () => {
+          // Fires immediately when Apple Pay starts hiding
+        })
+        .on('hidden:apple', () => {
+          // Fires after Apple Pay hide transition ends
+        })
+        // Google Pay Specific Events
+        .on('show:google', () => {
+          // Fires immediately when Google Pay starts showing
+        })
+        .on('shown:google', () => {
+          // Fires after Google Pay show transition ends
+        })
+        .on('hide:google', () => {
+          // Fires immediately when Google Pay starts hiding
+        })
+        .on('hidden:google', () => {
+          // Fires after Google Pay hide transition ends
         })
     </script>
   </body>
