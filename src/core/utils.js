@@ -49,6 +49,10 @@ export const isArray = (o) => {
   return getType(o) === 'array'
 }
 
+export const isBoolean = (o) => {
+  return typeof o === 'boolean'
+}
+
 export const isElement = (o) => {
   return o && o.nodeType === 1
 }
@@ -420,4 +424,9 @@ export const loadExternalApi = (url, path) => {
   })
   document.head.appendChild(script)
   return promise
+}
+
+export const transitionDelay = (el) => {
+  let { transitionDelay, transitionDuration } = getComputedStyle(el)
+  return (Number.parseFloat(transitionDuration) + Number.parseFloat(transitionDelay)) * 1000
 }

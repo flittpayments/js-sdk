@@ -10,6 +10,8 @@ import {
   ButtonFrameAttrs,
 } from '../config.js'
 
+import { transitionDelay, toArray } from '../utils.js'
+
 import { PaymentRequestApi } from './request.js'
 
 export const PaymentElement = Module.extend({
@@ -38,7 +40,7 @@ export const PaymentElement = Module.extend({
   timeout(callback, timeout) {
     this.timeoutMap = this.timeoutMap || {}
     clearTimeout(this.timeoutMap[timeout])
-    this.timeoutMap[callback] = setTimeout(callback, timeout)
+    this.timeoutMap[callback] = setTimeout(this.proxy(callback), timeout)
     return this
   },
   getElementUrl() {
@@ -140,10 +142,13 @@ export const PaymentElement = Module.extend({
     return this
   },
   render() {
-    if (this.state.isSupported === false) return this
-    if (this.state.isAllowed === false) return this
+    if (this.state.isSupported === false) return this.hide()
+    if (this.state.isAllowed === false) return this.hide()
     this.mount()
     this.show()
+  },
+  notMounted() {
+    return document.body.contains(this.element) === false
   },
   unmount() {
     if (this.element.parentNode) {
@@ -152,37 +157,63 @@ export const PaymentElement = Module.extend({
     return this
   },
   mount() {
-    if (document.body.contains(this.element) === false) {
+    if (this.notMounted()) {
       this.appendTo(this.params.appendTo)
     }
     return this
   },
+  transitionValue(value) {
+    return value
+  },
   show() {
-    this.timeout(() => {
-      this.addCss(this.iframe, {
-        transition: 'opacity 0.6s 0.4s ease-out',
-        opacity: this.utils.cssUnit(1),
-      })
-      this.addCss(this.element, {
-        transition: 'height 0.2s ease-out',
-        height: this.utils.cssUnit(this.params.height, 'px'),
-      })
-      this.trigger('show', {})
-    }, 25)
+    if (this.notMounted()) return
+    this.timeout('showCallback', 25)
     return this
   },
   hide() {
-    this.timeout(() => {
-      this.addCss(this.iframe, {
-        transition: 'opacity 0.4s ease-out',
-        opacity: this.utils.cssUnit(0),
-      })
-      this.addCss(this.element, {
-        transition: 'height 0.2s 0.4s ease-out',
-        height: this.utils.cssUnit(0, 'px'),
-      })
-      this.trigger('hide', {})
-    }, 25)
+    if (this.notMounted()) return
+    this.timeout('hideCallback', 25)
     return this
+  },
+  showCallback() {
+    this.addCss(this.element, {
+      transition: this.transitionValue('height 0.2s ease-out'),
+      height: this.utils.cssUnit(this.params.height, 'px'),
+      'will-change': 'height',
+    })
+    this.addCss(this.iframe, {
+      transition: this.transitionValue('opacity 0.225s 0.225s ease-out'),
+      opacity: this.utils.cssUnit(1),
+      'will-change': 'opacity',
+    })
+    this.afterCallback('show')
+  },
+  hideCallback() {
+    this.addCss(this.element, {
+      transition: this.transitionValue('height 0.225s 0.225s ease-out'),
+      height: this.utils.cssUnit(0, 'px'),
+      'will-change': 'height',
+    })
+    this.addCss(this.iframe, {
+      transition: this.transitionValue('opacity 0.225s ease-out'),
+      opacity: this.utils.cssUnit(0),
+      'will-change': 'opacity',
+    })
+    this.afterCallback('hide')
+  },
+  getTimeoutValue() {
+    return toArray(arguments).map(transitionDelay).sort().pop()
+  },
+  afterCallback(state) {
+    if (this.currentState === state) return
+    if (this.transitionPending) return
+    this.transitionPending = true
+    this.currentState = state
+    this.request.trigger(this.currentState, { complete: false, method: this.params.method })
+    this.timeout('afterTransition', this.getTimeoutValue(this.iframe, this.element))
+  },
+  afterTransition() {
+    this.transitionPending = false
+    this.request.trigger(this.currentState, { complete: true, method: this.params.method })
   },
 })

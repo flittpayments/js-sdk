@@ -118,39 +118,33 @@ export const PaymentRequestApi = Module.extend({
   update(data) {
     if (this.isPending()) return
     this.setPending(true)
-    const context = this
-    const defer = Deferred()
     this.params.data = data
+    this.defer = Deferred()
     this.request(
       'api.checkout.pay',
       'methods',
       this.params.data,
-      function (model) {
-        context.setPending(false)
-        context.setPayload(model.serialize())
-        defer.resolve(model)
-      },
-      function (model) {
-        context.setPending(false)
-        context.trigger('error', model)
-        defer.reject(model)
-      }
+      this.proxy(function (_cx, model) {
+        this.setPending(false)
+        this.setPayload(model.serialize())
+        this.defer.resolve(model)
+      }),
+      this.proxy(function (_cx, model) {
+        this.setPending(false)
+        this.trigger('error', model.serialize())
+        this.defer.reject(model)
+      })
     )
-    return defer
+    return this.defer
   },
   isPending() {
     return this.pendingState === true
   },
   setPending(state) {
-    this.pendingState = state
-    clearTimeout(this.pendingTimeoutEvent)
-    this.pendingTimeoutEvent = setTimeout(
-      function (context) {
-        context.trigger('pending', state)
-      },
-      50,
-      this
-    )
+    if (this.pendingState !== state) {
+      this.pendingState = state
+      this.trigger('pending', state)
+    }
   },
   before() {
     if (this.isPending()) return

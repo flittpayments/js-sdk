@@ -2,7 +2,7 @@ import { Module } from '../module.js'
 import { Api } from '../api.js'
 import { PaymentRequestApi } from './request.js'
 import { PaymentElement } from './element.js'
-import { forEach, isFunction } from '../utils.js'
+import { forEach, isFunction, toArray } from '../utils.js'
 import { ApiOrigin, ApiEndpoint } from '../config.js'
 
 export const PaymentButton = Module.extend({
@@ -71,17 +71,24 @@ export const PaymentButton = Module.extend({
     })
     this.request.setApi(this.api)
     this.request.setMerchant(this.params.data.merchant_id)
+    this.request.on('pending', this.proxy('onPending'))
     this.request.on('details', this.proxy('onDetails'))
     this.request.on('error', this.proxy('onError'))
+    this.request.on('show', this.proxy('onShow'))
+    this.request.on('hide', this.proxy('onHide'))
   },
   initElements() {
+    const self = this
     const style = this.params.style
     const data = this.params.data
     const origin = this.params.origin
     const appendTo = this.params.element
     const endpoint = this.params.endpoint.element
+    const transition = this.params.transition
     const request = this.request
+    this.buttons = []
     this.container = this.utils.querySelector(this.params.element)
+    this.container.innerHTML = ''
     this.addCss(this.container, {
       display: 'flex',
       gap: '1rem',
@@ -92,6 +99,7 @@ export const PaymentButton = Module.extend({
         origin: origin,
         endpoint: endpoint,
         method: method,
+        transition: transition,
         appendTo: appendTo,
         color: style.color,
         mode: style.mode,
@@ -99,13 +107,14 @@ export const PaymentButton = Module.extend({
         height: style.height,
       })
       element.setPaymentRequest(request)
+      self.buttons.push(element)
     })
     request.getSupportedMethods()
   },
   update(data) {
     return this.request.update(this.utils.extend(this.params.data, data || {}))
   },
-  onDetails(cx, data) {
+  onDetails(_cx, data) {
     this.api.scope(() => {
       this.request.after(this.params.data).done((extendParams) => {
         this.api
@@ -119,10 +128,40 @@ export const PaymentButton = Module.extend({
       })
     })
   },
-  onSuccess(cx, data) {
+  onSuccess(_cx, data) {
     this.trigger('success', data)
   },
-  onError(cx, data) {
+  onError(_cx, data) {
     this.trigger('error', data)
+  },
+  toggleEventType(state, complete) {
+    return state ? (complete ? 'shown' : 'show') : complete ? 'hidden' : 'hide'
+  },
+  toggleEventNamespace(state, data) {
+    const name = []
+    name.push(this.toggleEventType(state, data.complete))
+    name.push(data.method)
+    return name.join(':')
+  },
+  triggerEventType(state, data) {
+    const name = this.toggleEventType(state, data.complete)
+    this.triggerEventMap = this.triggerEventMap || {}
+    this.triggerEventMap[name] = this.triggerEventMap[name] || toArray(this.params.methods)
+    this.triggerEventMap[name].splice(this.triggerEventMap[name].indexOf(data.method), 1)
+    if (this.triggerEventMap[name].length === 0) {
+      this.triggerEventMap[name] = null
+      this.trigger(name, {})
+    }
+  },
+  onShow(_cx, data) {
+    this.trigger(this.toggleEventNamespace(true, data), {})
+    this.triggerEventType(true, data)
+  },
+  onHide(_cx, data) {
+    this.trigger(this.toggleEventNamespace(false, data), {})
+    this.triggerEventType(false, data)
+  },
+  onPending(_cx, state) {
+    this.trigger('pending', state)
   },
 })

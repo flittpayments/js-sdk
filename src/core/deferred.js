@@ -118,6 +118,14 @@ export function Deferred() {
     isProgress() {
       return status === PROGRESS
     },
+    clear() {
+      if (this.isPending()) {
+        resolveCallbacks.length = 0
+        rejectCallbacks.length = 0
+        notifyCallbacks.length = 0
+      }
+      return this
+    },
     resolveWith(context, args) {
       if (this.isPending()) {
         status = RESOLVED
