@@ -140,21 +140,11 @@ export const PaymentButton = Module.extend({
     name.push(data.method)
     return name.join(':')
   },
-  triggerEventComplete(state, data) {
-    const transition = data.transition
-    const name = this.toggleEventType(state, transition)
-    const check = this.buttons
-      .filter((i) => i.isMounted())
-      .every((i) => i.getState(state, transition))
-    if (check) this.trigger(name, {})
-  },
   onShow(_cx, data) {
     this.trigger(this.toggleEventNamespace(true, data), {})
-    this.triggerEventComplete(true, data)
   },
   onHide(_cx, data) {
     this.trigger(this.toggleEventNamespace(false, data), {})
-    this.triggerEventComplete(false, data)
   },
   onPending(_cx, state) {
     this.trigger('pending', state)

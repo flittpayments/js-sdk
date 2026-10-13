@@ -161,6 +161,9 @@ export const PaymentElement = Module.extend({
   isMounted() {
     return this.state.mounted === true
   },
+  isHide() {
+    return this.state.type === 'hide'
+  },
   unmount() {
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element)
@@ -179,12 +182,12 @@ export const PaymentElement = Module.extend({
     return value
   },
   getTimeoutValue() {
-    return toArray(arguments).map(transitionDelay).sort().pop()
+    return toArray([this.iframe, this.element]).map(transitionDelay).sort().pop()
   },
   getState(state, transition) {
     return this.state.type === (state ? 'show' : 'hide') && this.state.transition === transition
   },
-  triggerState() {
+  triggerState(timeout) {
     this.request.trigger(this.state.type, {
       transition: this.state.transition,
       method: this.params.method,
@@ -232,12 +235,13 @@ export const PaymentElement = Module.extend({
     this.state.transition = true
     this.state.type = state
     this.triggerState()
-    this.timeout('afterTransition', this.getTimeoutValue(this.iframe, this.element))
+    this.timeout('afterTransition', this.getTimeoutValue())
   },
   afterTransition() {
     this.iframeLoaded.then(function () {
       this.state.transition = false
       this.triggerState()
+      if (this.isHide()) this.unmount()
     })
   },
 })

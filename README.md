@@ -105,18 +105,6 @@ git clone git@github.com:flittpayments/js-sdk.git
         })
       // Visibility event handlers
       paymentButton
-        .on('show', () => {
-          // Fires immediately when the showing process starts
-        })
-        .on('shown', () => {
-          // Fires after the show transition/animation ends
-        })
-        .on('hide', () => {
-          // Fires immediately when the hiding process starts
-        })
-        .on('hidden', () => {
-          // Fires after the hide transition/animation ends
-        })
         // Apple Pay Specific Events
         .on('show:apple', () => {
           // Fires immediately when Apple Pay starts showing
