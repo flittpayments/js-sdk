@@ -13,6 +13,7 @@ import {
 import { transitionDelay, toArray } from '../utils.js'
 
 import { PaymentRequestApi } from './request.js'
+import { Deferred } from '../deferred.js'
 
 export const PaymentElement = Module.extend({
   defaults: {
@@ -61,6 +62,7 @@ export const PaymentElement = Module.extend({
   initElement() {
     this.element = this.utils.createElement('div')
     this.iframe = this.utils.createElement('iframe')
+    this.iframeLoaded = Deferred()
     this.button = this.utils.createElement('a')
     this.addCss(this.element, ButtonContainerCss)
     this.addCss(this.button, ButtonCoverCss)
@@ -78,8 +80,11 @@ export const PaymentElement = Module.extend({
     this.element.appendChild(this.iframe)
     this.element.appendChild(this.button)
   },
-  errorConnector() {},
+  errorConnector() {
+    this.iframeLoaded.resolveWith(this)
+  },
   onloadConnector() {
+    this.iframeLoaded.resolveWith(this)
     this.connector = new Connector({
       target: this.iframe.contentWindow,
       origin: this.params.origin,
@@ -231,6 +236,8 @@ export const PaymentElement = Module.extend({
   },
   afterTransition() {
     this.state.transition = false
-    this.triggerState()
+    this.iframeLoaded.then(function () {
+      this.triggerState()
+    })
   },
 })
