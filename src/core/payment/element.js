@@ -235,8 +235,8 @@ export const PaymentElement = Module.extend({
     this.timeout('afterTransition', this.getTimeoutValue(this.iframe, this.element))
   },
   afterTransition() {
-    this.state.transition = false
     this.iframeLoaded.then(function () {
+      this.state.transition = false
       this.triggerState()
     })
   },
